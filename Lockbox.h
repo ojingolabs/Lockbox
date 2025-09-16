@@ -21,6 +21,7 @@
 // instance of Lockbox specifying your own key prefix, and use the appropriate instance methods
 // to store and retrieve keychain data. You can also instantiate your own instance and use the
 // default key prefix simply by calling [[Lockbox alloc] init];
+-(instancetype)initWithKeyPrefix:(NSString *)keyPrefix accessGroup:(NSString *)accessGroup;
 -(instancetype)initWithKeyPrefix:(NSString *)keyPrefix;
 
 // When adding instance methods, remember to add a corresponding class method.

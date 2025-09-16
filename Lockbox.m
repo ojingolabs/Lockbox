@@ -28,6 +28,7 @@ static NSString *_defaultKeyPrefix = nil;
 
 @interface Lockbox()
 @property (strong, nonatomic, readwrite) NSString *keyPrefix;
+@property (strong, nonatomic) NSString *accessGroup;
 @end
 
 @implementation Lockbox
@@ -50,14 +51,20 @@ static NSString *_defaultKeyPrefix = nil;
     return self;
 }
 
--(instancetype)initWithKeyPrefix:(NSString *)keyPrefix
+-(instancetype)initWithKeyPrefix:(NSString *)keyPrefix accessGroup:(NSString *)accessGroup
 {
     self = [self init];
     if (self) {
         if (keyPrefix)
             self.keyPrefix = keyPrefix;
+        _accessGroup = accessGroup;
     }
     return self;
+}
+
+-(instancetype)initWithKeyPrefix:(NSString *)keyPrefix
+{
+    return [self initWithKeyPrefix:keyPrefix accessGroup:nil];
 }
 
 -(NSMutableDictionary *)_service
@@ -75,6 +82,9 @@ static NSString *_defaultKeyPrefix = nil;
     
     [query setObject: (LOCKBOX_ID) kSecClassGenericPassword forKey: (LOCKBOX_ID) kSecClass];
     [query setObject: (LOCKBOX_ID) kCFBooleanTrue           forKey: (LOCKBOX_ID) kSecReturnData];
+    if (_accessGroup != nil) {
+        [query setObject: _accessGroup           forKey: (LOCKBOX_ID) kSecAttrAccessGroup];
+    }
 
     return query;
 }
@@ -102,6 +112,9 @@ static NSString *_defaultKeyPrefix = nil;
     [dict setObject: hierKey forKey: (LOCKBOX_ID) kSecAttrService];
     [dict setObject: (LOCKBOX_ID)(accessibility) forKey: (LOCKBOX_ID) kSecAttrAccessible];
     [dict setObject: [obj dataUsingEncoding:NSUTF8StringEncoding] forKey: (LOCKBOX_ID) kSecValueData];
+    if(_accessGroup != nil) {
+        [dict setObject:_accessGroup  forKey: (LOCKBOX_ID) kSecAttrAccessGroup];
+    }
     
     _lastStatus = SecItemAdd ((LOCKBOX_DICTREF) dict, NULL);
     if (_lastStatus == errSecDuplicateItem) {
